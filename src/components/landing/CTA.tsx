@@ -3,7 +3,6 @@
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { ArrowRight, CheckCircle2, Zap, Clock, Shield } from "lucide-react";
-import { submitContactForm } from "../../lib/contact";
 
 const benefits = [
   { icon: Zap, text: "Free technical consultation" },
@@ -33,15 +32,18 @@ export function CTA() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      // Use client-side form handler
-      const result = await submitContactForm({
-        email,
-        type: 'newsletter',
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('type', 'newsletter');
+
+      const response = await fetch('/_actions/contact', {
+        method: 'POST',
+        body: formData,
       });
-      
-      if (result.success) {
+
+      if (response.ok) {
         setIsSubmitted(true);
         setEmail("");
       } else {

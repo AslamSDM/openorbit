@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { ArrowRight, X, CheckCircle2 } from "lucide-react";
-import { submitContactForm } from "../../lib/contact";
 
 export function FloatingCTA() {
   const [isVisible, setIsVisible] = useState(false);
@@ -32,16 +31,19 @@ export function FloatingCTA() {
     setIsSubmitting(true);
 
     try {
-      // Use client-side form handler
-      const result = await submitContactForm({
-        name: formData.name,
-        email: formData.email,
-        company: formData.company,
-        message: formData.message,
-        type: 'contact',
+      const formDataObj = new FormData();
+      formDataObj.append('name', formData.name);
+      formDataObj.append('email', formData.email);
+      formDataObj.append('company', formData.company);
+      formDataObj.append('message', formData.message);
+      formDataObj.append('type', 'contact');
+
+      const response = await fetch('/_actions/contact', {
+        method: 'POST',
+        body: formDataObj,
       });
 
-      if (result.success) {
+      if (response.ok) {
         setIsSubmitted(true);
         setFormData({ name: "", email: "", company: "", message: "" });
         setTimeout(() => {
